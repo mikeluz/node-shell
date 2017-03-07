@@ -1,10 +1,14 @@
 var commands = require('./commands');
 var fs = require('fs');
+var chalk = require('chalk');
+var prompt = chalk.green('\nPrompt > ');
 
-process.stdout.write('prompt > ');
+process.stdout.write(prompt);
 
 process.stdin.on('data', function (data) {
-		var cmd = data.toString().trim();
+    var tokens = data.toString().trim().split(' ');
+		var cmd = tokens[0];
+    var args = tokens.slice(1).join(" ");
 
     if (cmd === "pwd") {
       commands.pwd(done);
@@ -18,32 +22,36 @@ process.stdin.on('data', function (data) {
       commands.ls(done);
     }
 
-    if (cmd.slice(0,4) === "echo") {
-      commands.echo(cmd, done);
+    if (cmd === "echo") {
+      commands.echo(args, done);
     }
 
-    if (cmd.slice(0,3) === "ver") {
+    if (cmd === "ver") {
       commands.ver(done);
     }
 
-    if (cmd.slice(0,3) === "cat") {
-      commands.cat(cmd, done);
+    if (cmd === "cat") {
+      commands.cat(args, done);
     }
 
-    if (cmd.slice(0,4) === "head") {
-      commands.head(cmd, done);
+    if (cmd === "head") {
+      commands.head(args, done);
     }
 
-    if (cmd.slice(0,4) === "tail") {
-      commands.tail(cmd, done);
+    if (cmd === "tail") {
+      commands.tail(args, done);
     }
 
-    if (cmd.slice(0,2) === "lc") {
-      commands.lc(cmd, done);
+    if (cmd === "lc") {
+      commands.lc(args, done);
     }
 
-    if (cmd.slice(0,4) === "curl") {
-      commands.curl(cmd, done);
+    if (cmd === "curl") {
+      commands.curl(args, done);
+    }
+
+    else if (!commands[cmd]) {
+      process.stdout.write(chalk.red("Command not found: ") + cmd);
     }
 
     // process.stdout.write('You typed: ' + cmd);
@@ -51,5 +59,5 @@ process.stdin.on('data', function (data) {
 
 var done = function(output) {
   console.log(output);
-  process.stdout.write('\nprompt > ');
+  process.stdout.write(prompt);
 }

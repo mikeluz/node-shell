@@ -2,12 +2,14 @@ var fs = require('fs');
 var request = require('request');
 
 var pwd = function(done) {
-    var output = process.argv[1];
+    var output = process.cwd();
     done(output);
 }
 
-var echo = function(cmd, done) {
-    var output = cmd.slice(5) + "\n";
+var echo = function(args, done) {
+    var output = args.split(' ').map(function(arg) {
+      return (arg[0] === "$") ? process.env[arg.slice(1)] : arg;
+    }).join(' ');
     done(output);
 }
 
@@ -17,40 +19,50 @@ var ver = function(done) {
 }
 
 var date = function(done) {
-  var date = new Date();
-  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  var day = date.getDate();
-  var hours = date.getHours();
-  var minutes = date.getMinutes();
-  var seconds = date.getSeconds();
-  var year = date.getUTCFullYear();
+  // var date = new Date();
+  // var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  // var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  // var day = date.getDate();
+  // var hours = date.getHours();
+  // var minutes = date.getMinutes();
+  // var seconds = date.getSeconds();
+  // var year = date.getUTCFullYear();
 
-  var addZero = function(num) {
-    if (num < 10) {
-      return "0" + num;
-    }
-    return num;
-  }
+  // var addZero = function(num) {
+  //   if (num < 10) {
+  //     return "0" + num;
+  //   }
+  //   return num;
+  // }
 
-  var output = days[date.getDay()].slice(0, 3) + " " + months[date.getMonth()].slice(0, 3) + "  " + addZero(day) + " " + addZero(hours) +  ":" + addZero(minutes) + ":" + addZero(seconds) + " EST " + addZero(year);
-
+  // var output = days[date.getDay()].slice(0, 3) + " " + months[date.getMonth()].slice(0, 3) + "  " + addZero(day) + " " + addZero(hours) +  ":" + addZero(minutes) + ":" + addZero(seconds) + " EST " + addZero(year);
+  var output = Date();
   done(output);
 }
 
 var ls = function(done) {
-  var filePath = process.argv[1].split('/');
-  filePath.pop();
+  var filePath = process.cwd().split('/');
   var output = "";
 
   fs.readdir(filePath.join('/'), function(err, files) {
   if (err) throw err;
-  files.forEach(function(file) {
-    output += file.toString() + "\n";
-  })
-    done(output);
+  output = files.join('\n');
+  done(output);
   });
 }
+
+// var ls = function(done) {
+//   var filePath = process.cwd().split('/');
+//   var output = "";
+
+//   fs.readdir(filePath.join('/'), function(err, files) {
+//   if (err) throw err;
+//   files.forEach(function(file) {
+//     output += file.toString() + "\n";
+//   })
+//     done(output);
+//   });
+// }
 // var commands = {
 //   ls: function(file, done) {
 //     var output = "";
@@ -63,8 +75,8 @@ var ls = function(done) {
 //   }
 // }
 
-var cat = function(cmd, done) {
-  var file = cmd.slice(4);
+var cat = function(args, done) {
+  var file = args;
   var output = "";
 
   fs.readFile(file, (err, data) => {
@@ -74,8 +86,8 @@ var cat = function(cmd, done) {
   });
 }
 
-var head = function(cmd, done) {
-  var file = cmd.slice(5);
+var head = function(args, done) {
+  var file = args;
   var fileHead = [];
   var count = 0;
   var output = "";
@@ -93,8 +105,8 @@ var head = function(cmd, done) {
   })
 }
 
-var tail = function(cmd, done) {
-  var file = cmd.slice(5);
+var tail = function(args, done) {
+  var file = args;
   var fileTail = [];
   var count = 0;
   var output;
@@ -113,8 +125,8 @@ var tail = function(cmd, done) {
   })
 }
 
-var lc = function(cmd, done) {
-  var file = cmd.slice(3);
+var lc = function(args, done) {
+  var file = args;
   var fileTail = [];
   var count = 0;
   var output;
@@ -127,13 +139,8 @@ var lc = function(cmd, done) {
   })
 }
 
-var sort = function() {
-  var file = cmd.slice(5);
-
-}
-
-var curl = function(cmd, done) {
-  var url = "http://www." + cmd.slice(5);
+var curl = function(args, done) {
+  var url = "http://www." + args;
   var output = "";
 
   request(url, function (error, response, body) {
@@ -141,7 +148,11 @@ var curl = function(cmd, done) {
     output += 'statusCode: ' + response && response.statusCode + "\n"; // Print the response status code if a response was received
     output += 'body: ' + body + "\n"; // Print the HTML for the Google homepage.
     done(output);
-});
+  });
+}
+
+var find = function() {
+  
 }
 
 module.exports = {

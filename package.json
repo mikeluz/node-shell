@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/tinaonthelam/node-shell#readme",
   "dependencies": {
+    "chalk": "^1.1.3",
     "request": "^2.80.0"
   }
 }
